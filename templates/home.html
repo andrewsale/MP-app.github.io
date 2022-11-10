@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            Who said that?
+        </title>
+        <link rel=""stylesheet" type=""text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <div id="brandname">
+                    Tensorflow app with Flask
+                </div>
+                <h2>
+                    Who said it? Labour or Conservatives?
+                </h2>
+                <p>You can find some speeches at
+                    <a href="https://www.ukpol.co.uk" target="_blank">www.ukpol.co.uk</a>, 
+                    <a href="https://labour.org.uk/category/latest/" target="_blank">www.labour.org.uk</a>, or
+                    <a href="https://www.conservatives.com/news" target="_blank">www.conservatives.com</a>.
+                </p>
+                <p>
+                    Warning: the model does not work very well for short sentences. 
+                    For example, see what happens with 
+                    "Boris Johnson is a great, honest leader who has lead this country to a successful Brexit and deserves everyone's praise."
+                </p>
+            </div>
+        </header>
+
+        <div class="ml-container">
+            <form action="{{ url_for('predict') }}" method ="POST">
+                <p>Enter the speech here...</p>
+                <textarea name="user-input" rows="4" cols="50"></textarea>
+                <br/>
+                <input type="submit" class="btn-info" value="predict">
+            </form>
+        </div>
+        
+        {% if result %}
+            <div class="ml-result">
+                <p> Your speech:</p>
+                <p>{{ speech  }}</p>
+                <br/>
+                <p>We predict the speaker is from the {{ result }} party, with probability {{ "{0:.1f}%".format(prob*100) }}.</p>
+            </div>
+        {% endif %}
+    </body>
+</html>

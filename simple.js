@@ -21,7 +21,7 @@ function positionalEncoding(embedDim, seqLength) {
     evenEntries = tf.sin(angle);
     oddEntries = tf.cos(angle);
 
-    var posEncVec = tf.concat([evenEntries, oddEntries]);
+    var posEncVec = tf.concat([evenEntries, oddEntries], -1);
     return tf.cast(posEncVec, 'float32');
 }
 
@@ -37,7 +37,7 @@ class AddPositionalEncoding extends tf.layers.Layer {
         const batchSize = tf.shape(inputs)[0];
         const length = tf.shape(inputs)[1];
         var x = inputs*tf.sqrt(tf.cast(this.embedDim, 'float32'));
-        x =  x + this.posTensor.slice(:length, :);
+        x += this.posTensor.slice(0, length);
         return x.reshape([batchSize, length, this.embedDim]);
     }
 }

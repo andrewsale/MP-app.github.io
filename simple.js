@@ -9,6 +9,42 @@ let model;
 let modelPath = './Model_js/model.json'
 // let modelPath = 'https://raw.githubusercontent.com/andrewsale/MP-app.github.io/main/Model_js/model.json';
 
+// create custom layer
+
+function positionalEncoding(embedDim, seqLength) {
+    var posVector = tf.range(0, seqLength);
+    posVector = posVector.reshape([seqLength,1]);
+    var embVector = tf.range(0, embedDim/2);
+    embVector = embVector.reshape([1, embedDim/2]);
+    const angle = posVector / (10000**(2*embVector/embedDim));
+
+    evenEntries = tf.sin(angle);
+    oddEntries = tf.cos(angle);
+
+    var posEncVec = tf.concat([evenEntries, oddEntries]);
+    return tf.cast(posEncVec, 'float32');
+}
+
+class AddPositionalEncoding extends tf.layers.Layer {
+    cosntructor(embedDim, seqLength) {
+        super({});
+        this.embedDim = embedDim;
+        this.posTensor = positionalEncoding(embedDim, seqLength);
+    }
+
+    call(inputs) {
+        // input shape (batchSize, length, embedDim)
+        const batchSize = tf.shape(inputs)[0];
+        const length = tf.shape(inputs)[1];
+        var x = inputs*tf.sqrt(tf.cast(this.embedDim, 'float32'));
+        x =  x + this.posTensor.slice(:length, :);
+        return x.reshape([batchSize, length, this.embedDim]);
+    }
+}
+
+tf.serialization.registerClass(AddPositionalEncoding)
+
+
 // load the tokenizer from json
 async function loadTokenizer() {
     let tknzr = fetch(vocabPath).then(response => {

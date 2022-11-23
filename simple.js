@@ -26,7 +26,7 @@ function positionalEncoding(embedDim, seqLength) {
 }
 
 class AddPositionalEncoding extends tf.layers.Layer {
-    cosntructor(embedDim, seqLength) {
+    constructor(embedDim, seqLength) {
         super({});
         this.embedDim = embedDim;
         this.posTensor = positionalEncoding(embedDim, seqLength);

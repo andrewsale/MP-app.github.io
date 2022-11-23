@@ -42,7 +42,7 @@ class AddPositionalEncoding extends tf.layers.Layer {
     }
 }
 
-tf.serialization.registerClass(AddPositionalEncoding)
+tf.serialization.registerClass(AddPositionalEncoding);
 
 
 // load the tokenizer from json

@@ -1,49 +1,22 @@
-// import * as tf from '@tensorflow/tfjs';
-
 let speechText;
 let predictOutput;
+let theButton;
 let vocab;
 let vocabPath = 'https://raw.githubusercontent.com/andrewsale/MP-app.github.io/main/Tokenizer/tokenizer_dictionary.json';
 let tokenizer;
 let model;
-let modelPath = './Model_js/model.json'
-// let modelPath = 'https://raw.githubusercontent.com/andrewsale/MP-app.github.io/main/Model_js/model.json';
+// let modelPath = './Model_js/model.json'
+let modelPath = 'https://raw.githubusercontent.com/andrewsale/MP-app.github.io/main/Model_js/model.json';
 
-// create custom layer
+class L2 {
 
-function positionalEncoding(embedDim, seqLength) {
-    var posVector = tf.range(0, seqLength);
-    posVector = posVector.reshape([seqLength,1]);
-    var embVector = tf.range(0, embedDim/2);
-    embVector = embVector.reshape([1, embedDim/2]);
-    const angle = posVector / (10000**(2*embVector/embedDim));
+    static className = 'L2';
 
-    evenEntries = tf.sin(angle);
-    oddEntries = tf.cos(angle);
-
-    var posEncVec = tf.concat([evenEntries, oddEntries], -1);
-    return tf.cast(posEncVec, 'float32');
-}
-
-class AddPositionalEncoding extends tf.layers.Layer {
-    constructor(embedDim, seqLength) {
-        super({});
-        this.embedDim = embedDim;
-        this.posTensor = positionalEncoding(embedDim, seqLength);
-    }
-
-    call(inputs) {
-        // input shape (batchSize, length, embedDim)
-        const batchSize = tf.shape(inputs)[0];
-        const length = tf.shape(inputs)[1];
-        var x = inputs*tf.sqrt(tf.cast(this.embedDim, 'float32'));
-        x += this.posTensor.slice(0, length);
-        return x.reshape([batchSize, length, this.embedDim]);
+    constructor(config) {
+       return tf.regularizers.l2(config)
     }
 }
-
-tf.serialization.registerClass(AddPositionalEncoding);
-
+tf.serialization.registerClass(L2);
 
 // load the tokenizer from json
 async function loadTokenizer() {
@@ -54,10 +27,10 @@ async function loadTokenizer() {
   }
 
 // Load the model from json
-// async function loadModel() {
-//     const model = 
-//     return model;
-//   }
+async function loadModel() {
+    const model = tf.loadLayersModel(modelPath);
+    return model;
+  }
 
 
 // tokenize function to convert input text to list of tokenized segments
@@ -84,25 +57,46 @@ function tokenize(text) {
     return tokenized_text_segments;
   }
 
+async function predictParty() {
+    const prob = tf.tidy(() => {
+        speechText = document.getElementById('userInput').value;        
+        var x = tokenize(speechText)
+        x = model.predict(tf.tensor2d(x, [x.length, 100]));
+        x = tf.mean(x);
+        x = x.arraySync();
+        return x
+    })
+    if (prob < 0.5) {
+        return `<p style="color:rgb(255,100,100); font-size:150%;">We predict this is by a member of the <b>LABOUR</b> party, with probability ${(100 - prob*100).toFixed(0)}%</p>`;
+    } else {
+        return `<p style="color:rgb(100,100,255); font-size:150%;">We predict this is by a member of the <b>CONSERVATIVE</b> party, with probability ${(prob*100).toFixed(0)}%</p>`;
+    }    
+}
 
-function tokenizeSpeech() {    
-    var token_segments = tokenize(speechText);
-    predictOutput.innerHTML = token_segments;
-  }
+
+function predictSpeech() {     
+    predictParty().then((x) => {predictOutput.innerHTML = x;});
+}
+
+
 
 async function init() {
-    speechText = document.getElementById('userInput').value;
     predictOutput = document.getElementById('result');
+    
+    theButton = document.getElementById("predict-btn");
 
-    predictOutput.innerHTML = `Loading...`;
+    theButton.innerHTML = `Loading...`;
 
     tokenizer = await loadTokenizer();
 
-    predictOutput.innerHTML = `Loading......`;
+    theButton.innerHTML = `Loading......`;
 
-    model = await tf.loadLayersModel(modelPath);
+    model = await loadModel();
+
+    theButton.disabled = false;
+    theButton.addEventListener("click", predictSpeech);   
     
-    predictOutput.innerHTML = `Ready!`;
+    theButton.innerHTML = `Predict! (This may take a moment...)`;    
 }
 
 init();

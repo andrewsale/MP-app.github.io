@@ -48,11 +48,6 @@
 	
 		#logo h1
 		{
-			color: #FFF;
-		}
-	
-		#logo h1 a
-		{
 			display: block;
 			letter-spacing: 1px;
 			text-decoration: none;
@@ -65,11 +60,11 @@
 		#logo span
 		{
 			display: block;
-			padding-top: 1em;
+			padding-top: 1.3em;
 			letter-spacing: 1px;
 			text-transform: uppercase;
-			font-size: 1.2em;
-			color: rgba(255,255,255,.5);
+			font-size: 1.5em;	
+			color: rgb(185, 185, 185);
 		}			
 			
 
@@ -132,7 +127,8 @@
 
 	#main
 	{
-		padding: 6em 0em 4em 0em;
+		padding: 3em 0em 4em 0em;
+		text-align: center;
 	}
 	
 	#content
@@ -193,6 +189,7 @@
 	#copyright
 	{
 		padding: 3em 0em;
+		text-align: center;
 	}		
 
 

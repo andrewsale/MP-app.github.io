@@ -1,4 +1,5 @@
 /*
+  Based on:
 	Iridium by TEMPLATED
     templated.co @templatedco
     Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
@@ -11,6 +12,7 @@
 	body
 	{
 		background: #141414;
+    text-align: center;
 	}
 
 	body,input,textarea,select
@@ -18,7 +20,7 @@
 		font-family: 'Arimo', sans-serif;
 		font-size: 11pt;
 		line-height: 1.75em;
-		color: #4c4c4c;
+		color: #f8e2e2;
 	}
 
 	h1,h2,h3,h4,h5,h6
@@ -36,7 +38,7 @@
 	strong, b
 	{
 		font-weight: bold;
-		color: #000000;
+		color: inherit;
 	}
 	
 	em, i
@@ -47,8 +49,14 @@
 	/* Don't forget to set this to something that matches the design */
 	a
 	{
+		text-decoration: underline;
+		color: #7e9deb;
+	}
+
+  a:visited
+	{
 		text-decoration: none;
-		color: #204092;
+		color: #5f85ed;
 	}
 
 	a:hover
@@ -267,27 +275,34 @@
 		{
 			position: relative;
 			display: inline-block;
-			margin-top: 2em;
+			margin-top: 1em;
 			padding: 0.90em 1.5em;
-			background: #e95d3c;
-			border-radius: 40px;
+			background: #d5d5d5;
+			border-radius: 4px;
 			text-decoration: none;
 			text-transform: uppercase;
 			font-size: 1.1em;
-			color: #FFF;
+			color: rgb(0, 0, 0);
 			-moz-transition: color 0.35s ease-in-out, background-color 0.35s ease-in-out;
 			-webkit-transition: color 0.35s ease-in-out, background-color 0.35s ease-in-out;
 			-o-transition: color 0.35s ease-in-out, background-color 0.35s ease-in-out;
 			-ms-transition: color 0.35s ease-in-out, background-color 0.35s ease-in-out;
 			transition: color 0.35s ease-in-out, background-color 0.35s ease-in-out;
 			cursor: pointer;
+      box-shadow: 1px 2px #999;
 		}
 
 			.button:hover
 			{
-				background: #de3d27;
-				color: #FFF !important;
+				background: #baa19e;
+				color: rgb(0, 0, 0) !important;
 			}
+
+      .button:active
+      {
+        transform: translateY(2px);
+        cursor: progress;
+      }
 			
 /*********************************************************************************/
 /* Header                                                                        */
@@ -297,6 +312,7 @@
 	{
 		position: relative;
 		background: #2a2f27 url(../images/banner.jpg) no-repeat;
+    background-position: center;
 		background-size: cover;
         font-family: 'Nunito', sans-serif;
 	}
@@ -309,10 +325,11 @@
 	{
 	}
 
-		#nav ul
-		{
-			margin: 0;
-		}
+  #nav ul
+  {
+    margin: 0;
+  }
+  
 	
 /*********************************************************************************/
 /* Banner                                                                        */
@@ -322,8 +339,9 @@
 	{
 		position: relative;
 		background: #333;
-		color: #fff;
 	}
+
+ 
 
 /*********************************************************************************/
 /* Main                                                                          */
@@ -332,7 +350,7 @@
 	#main
 	{
 		position: relative;
-		background: #fff;
+    background-color: rgb(50, 50, 50);
 	}
 
 /*********************************************************************************/

@@ -204,6 +204,11 @@
     max-width: 95%;
   }
 
+  select
+  {
+    color:rgb(20, 20, 20);
+  }
+
 	/* Lists */
 
 		ul.default

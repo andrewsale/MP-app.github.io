@@ -1,117 +1,112 @@
-import * as tf from '@tensorflow/tfjs';
-
-let model;
-let modelPath = 'Model_js/model.json'
-let vocab;
-let vocabPath = 'Tokenizer/tokenizer_dictionary.json'
-let tokenizer;
 let speechText;
 let predictOutput;
+let theButton;
+let vocab;
+let vocabPath = 'https://raw.githubusercontent.com/andrewsale/MP-app.github.io/main/Tokenizer/tokenizer_dictionary.json';
+let tokenizer;
+let model;
+let modelPath = 'https://raw.githubusercontent.com/andrewsale/MP-app.github.io/main/Model_js/model.json';
 
+class L2 {
 
-// Load the model from json
-async function loadModel() {
-  const model = await tf.loadLayersModel(modelPath);
-  return model;
+    static className = 'L2';
+
+    constructor(config) {
+       return tf.regularizers.l2(config)
+    }
 }
+tf.serialization.registerClass(L2);
 
 // load the tokenizer from json
 async function loadTokenizer() {
-  let tokenizer = await (await fetch(vocabPath)).json();
-  return tokenizer;
-}
+    let tknzr = fetch(vocabPath).then(response => {
+        return response.json();
+    })
+    return tknzr;
+  }
+
+// Load the model from json
+async function loadModel() {
+    const model = tf.loadLayersModel(modelPath);
+    return model;
+  }
+
 
 // tokenize function to convert input text to list of tokenized segments
 function tokenize(text) {
-  text = text.toLowerCase();
-  var split_text = text.split(' ');
-  var token_text = [];
-  split_text.array.forEach(element => {
-    if (tokenizer[element] != undefined) {
-      token_text.push(tokenizer[element]);
+    text = text.toLowerCase();
+    var split_text = text.split(' ');
+    var tokens = [];
+    split_text.forEach(element => {
+        if (tokenizer[element] != undefined) {
+            tokens.push(tokenizer[element]);
+          }
+    });
+    // create a list of slices of the list of tokens
+    let i = 0;
+    tokenized_text_segments = [];
+    while (i+50 < Math.max(tokens.length, 100)) {
+        var new_slice = tokens.slice(i,i+100);
+        while (new_slice.length < 100) {
+            new_slice.push(0);
+          }
+        tokenized_text_segments.push(new_slice);
+        i = i + 50;
     }
-  });
-  // create a list of slices of the list of tokens
-  let i = 0;
-  tokenized_text_segments = [];
-  while (i+50 < token_text.length) {
-    const new_slice = token_text.slice(i,Math.min(i+100, token_text.length);
-    while (new_slice.length < 100) {
-      new_slice.push(0);
-    }
-    tokenized_text_segments.push(new_slice);
-    i = i + 50;
+    return tokenized_text_segments;
   }
-  return tokenized_text_segments;
-}
 
 async function predictParty() {
-  const predictedLabel = tf.tidy(() => {
-    const text = document.getElementById('user-input');
-    const tokenized_text_segments = tokenize(text);
-    const preds = model.predict(tf.tensor2d(tokenized_text_segments, [tokenized_text_segments.length, 100]))
-    return preds.as1D().reduce((cumsum, next) => cumsum + next) / preds.length;
-  }
+    const prob = tf.tidy(() => {
+        speechText = document.getElementById('userInput').value;        
+        var x = tokenize(speechText)
+        x = model.predict(tf.tensor2d(x, [x.length, 100]));
+        x = tf.mean(x);
+        x = x.arraySync();
+        return x
+    })
+    if (prob < 0.5) {
+        return `<p style="color:rgb(255,100,100); font-size:150%;">We predict this is by a member of the <b>LABOUR</b> party, with probability ${(100 - prob*100).toFixed(0)}%</p>`;
+    } else {
+        return `<p style="color:rgb(100,100,255); font-size:150%;">We predict this is by a member of the <b>CONSERVATIVE</b> party, with probability ${(prob*100).toFixed(0)}%</p>`;
+    }    
 }
 
 
-function createButton(innerText, id, listener, selector, disabled = false) {
-    const btn = document.createElement('BUTTON');
-    btn.innerText = innerText;
-    btn.id = id;
-    btn.disabled = disabled;
-  
-    btn.addEventListener('click', listener);
-    document.querySelector(selector).appendChild(btn);
-}
-  
-
-function setupButtons() {
-    // Button to predict
-    createButton('Submit!', 'submit-btn',
-      () => {
-        predictParty(speechText).then((answers) => {
-          // Write the answers to the output div as an unordered list.
-          // It uses map create a new list of the answers while adding the list tags.
-          // Then, we use join to concatenate the answers as an array with a line break
-          // between answers.
-          const answersList = answers.map((answer) => `<li>${answer.text} (confidence: ${answer.score})</li>`)
-            .join('<br>');
-  
-          predictOutput.innerHTML = `<ul>${answersList}</ul>`;
-        }).catch((e) => console.log(e));
-      }, '#submit-button', true);
-    // temp button to test tokenizer
-    createButton('tokenize!', 'tokenize-btn',
-      () => {
-        tokenize(speechText).then((tokens) => {
-          predictOutput.innerHTML = `${tokens}`;
-        })
-      }, '#tok-button', true)  
-  }
-
-function predict() {
-  return predictParty();
+function predictSpeech() {     
+    predictParty().then((x) => {predictOutput.innerHTML = x;});
 }
 
-function doTokenize() {
-  return tokenize(speechText);
+
+function addSample() {
+    if (sampleSelction.value = 'NHS1'){
+        document.getElementById('userInput').value = 'The NHS has been ruined by this government. Years of Tory austerity has brought the NHS to its knees.';
+    } else if (samplesSelection.value = "rivers"){
+        document.getElementById('userInput').value = "For reasons which they could not comprehend, and in pursuance of a decision by default, on which they were never consulted, they found themselves made strangers in their own country. They found their wives unable to obtain hospital beds in childbirth, their children unable to obtain school places, their homes and neighbourhoods changed beyond recognition, their plans and prospects for the future defeated; at work they found that employers hesitated to apply to the immigrant worker the standards of discipline and competence required of the native-born worker; they began to hear, as time went by, more and more voices which told them that they were now the unwanted. On top of this, they now learn that a one-way privilege is to be established by Act of Parliament; a law which cannot, and is not intended to, operate to protect them or redress their grievances, is to be enacted to give the stranger, the disgruntled and the agent provocateur the power to pillory them for their private actions."
+    }
 }
 
-function printSpeech() {
-  predictOutput.innerText = speechText;
-}
+
 
 async function init() {
-  setupButtons();
-  speechText = document.getElementById('user-input').value;
-  predictOutput = document.getElementById('result');
+    sampleSelction = document.getElementById('samples');
 
-  // model = await loadModel();
-  tokenizer = await loadTokenizer();
-  document.getElementById('submit-btn').disabled = false;
-  document.getElementById('tokenize-btn').disabled = false;
+    predictOutput = document.getElementById('result');
+    
+    theButton = document.getElementById("predict-btn");
+
+    theButton.innerHTML = `Loading...`;
+
+    tokenizer = await loadTokenizer();
+
+    theButton.innerHTML = `Loading......`;
+
+    model = await loadModel();
+
+    theButton.disabled = false;
+    theButton.addEventListener("click", predictSpeech);   
+    
+    theButton.innerHTML = `Predict! (This may take a moment...)`;    
 }
 
 init();
-  

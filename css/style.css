@@ -199,6 +199,11 @@
 					width: auto;
 				}
 
+  .textarea
+  {
+    max-width: 95%;
+  }
+
 	/* Lists */
 
 		ul.default
